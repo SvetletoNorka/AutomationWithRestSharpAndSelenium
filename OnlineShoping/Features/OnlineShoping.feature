@@ -55,6 +55,6 @@ Scenario: Scenario 1
 Scenario: Scenario 2
 	Given I log in with the standard user
 	When I select sorting = "Price (high to low)"
-	Then I verify that the sorting of items = "Price (high to low)" is correct
+	Then I verify that the sorting of items by descending price is correct
 	When I press burger menu
 	Then I logout from the system
