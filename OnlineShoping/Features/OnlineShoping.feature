@@ -23,10 +23,17 @@ Logout from the system
 Version 2
 Implement the tasks written in Version 1 and do the following as well
 Add an ability to filter tests for the test execution
+
+-> The tags are added run the command: 
+dotnet test --filter "Category=smoke" 
+dotnet test --filter "Category=regression"
+
 Add custom HTML report for the test execution
+
 Tests will be executed on multiple environments (dev, testing, staging, etc..), add necessary configurations.
 Chrome and Firefox should be supported browsers
 
+@smoke
 Scenario: Scenario 1
 	Given I log in with the standard user
 	When I add "first" item in the cart
@@ -52,6 +59,7 @@ Scenario: Scenario 1
 	When I press burger menu
 	Then I logout from the system
 
+@regression
 Scenario: Scenario 2
 	Given I log in with the standard user
 	When I select sorting = "Price (high to low)"
