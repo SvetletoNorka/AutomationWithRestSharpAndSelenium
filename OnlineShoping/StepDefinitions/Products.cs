@@ -24,6 +24,7 @@ namespace OnlineShoping.StepDefinitions
         private readonly By cartBadge = By.CssSelector("span.shopping_cart_badge");
         private readonly By burgerMenu = By.Id("react-burger-menu-btn");
         private readonly By logOut = By.Id("logout_sidebar_link");
+        private readonly By sortingMenu = By.XPath("//*[@data-test='product-sort-container']");
 
         public Products()
         {
@@ -93,6 +94,18 @@ namespace OnlineShoping.StepDefinitions
         public void ThenILogoutFromTheSystem()
         {
             _webDriverExtensions.FindAndClick(logOut);
+        }
+
+        [When(@"I select sorting = ""([^""]*)""")]
+        public void WhenISelectSorting(string sorting)
+        {
+            _webDriverExtensions.SelectOptionFromMenu(sortingMenu, sorting);
+        }
+
+        [Then(@"I verify that the sorting of items = ""([^""]*)"" is correct")]
+        public void ThenIVerifyThatTheSortingOfItemsIsCorrect(string sorting)
+        {
+            
         }
 
         // Helper method to add an item to the cart by index
