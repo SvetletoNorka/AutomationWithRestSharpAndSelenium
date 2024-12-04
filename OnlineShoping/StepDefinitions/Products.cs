@@ -1,4 +1,5 @@
-﻿using OnlineShoping.Drivers;
+﻿using NUnit.Framework;
+using OnlineShoping.Drivers;
 using OpenQA.Selenium;
 using TechTalk.SpecFlow;
 
@@ -17,6 +18,12 @@ namespace OnlineShoping.StepDefinitions
         private readonly By productList = By.CssSelector(".inventory_item");
         private readonly By addTocart = By.CssSelector("button[name^='add-to-cart']");
         private readonly By cart = By.XPath("//*[@data-test='shopping-cart-link']");
+        private readonly By continueShopping = By.Id("continue-shopping");
+        private readonly By checkout = By.Id("checkout");
+        private readonly By cartLnk = By.CssSelector("a.shopping_cart_link");
+        private readonly By cartBadge = By.CssSelector("span.shopping_cart_badge");
+        private readonly By burgerMenu = By.Id("react-burger-menu-btn");
+        private readonly By logOut = By.Id("logout_sidebar_link");
 
         public Products()
         {
@@ -36,6 +43,23 @@ namespace OnlineShoping.StepDefinitions
             _webDriverExtensions.FindAndClick(cart);
         }
 
+        [When(@"I remove ""([^""]*)"" item from cart")]
+        public void WhenIRemoveItemFromCart(string index)
+        {
+            if (index == "first")
+                RemoveItemFromCart(firstItemName);
+            if (index == "last")
+                RemoveItemFromCart(lastItemName);
+            if (index == "previous of last")
+                RemoveItemFromCart(previousOflastItemName);
+        }
+
+        [Then(@"I continue with shoping")]
+        public void ThenIContinueWithShoping()
+        {
+            _webDriverExtensions.FindAndClick(continueShopping);
+        }
+
         [Then(@"I verify ""([^""]*)"" item is in the cart")]
         public void ThenIVerifyFirstItemIsInTheCart(string index)
         {
@@ -45,6 +69,30 @@ namespace OnlineShoping.StepDefinitions
                 VerifyItemInCart(lastItemName);
             if (index == "previous of last")
                 VerifyItemInCart(previousOflastItemName);
+        }
+
+        [When(@"I go to checkout")]
+        public void WhenIGoToCheckout()
+        {
+            _webDriverExtensions.FindAndClick(checkout);
+        }
+
+        [Then(@"I verify the cart is empty")]
+        public void ThenIVerifyTheCartIsEmpty()
+        {
+            VerifyCartIsEmpty();
+        }
+
+        [When(@"I press burger menu")]
+        public void WhenIPressBurgerMenu()
+        {
+            _webDriverExtensions.FindAndClick(burgerMenu);
+        }
+
+        [Then(@"I logout from the system")]
+        public void ThenILogoutFromTheSystem()
+        {
+            _webDriverExtensions.FindAndClick(logOut);
         }
 
         // Helper method to add an item to the cart by index
@@ -87,6 +135,25 @@ namespace OnlineShoping.StepDefinitions
         {
             By itemCartXpath = By.XPath($"//div[@data-test='inventory-item-name' and text()='{itemName}']");
             _webDriverExtensions.AssertElementIsDisplayed(itemCartXpath); // Verify item is in the cart
+        }
+
+        // Helper method to remove an item from the cart by name
+        private void RemoveItemFromCart(string itemName)
+        {
+            By itemCartXpath = By.XPath($"//div[@class='cart_item_label' and .//div[@class='inventory_item_name' and text()='{itemName}']]//button[normalize-space()='Remove']");
+            _webDriverExtensions.FindAndClick(itemCartXpath);
+        }
+
+        // Helper method to verify that the cart is empty
+        private void VerifyCartIsEmpty()
+        {
+            // Locate the shopping cart link element
+            var cartLink = _driver.FindElement(cartLnk);
+
+            // Check if the span.shopping_cart_badge is present
+            bool isBadgePresent = cartLink.FindElements(cartBadge).Count == 0;
+
+            Assert.IsTrue(isBadgePresent);
         }
     }
 }

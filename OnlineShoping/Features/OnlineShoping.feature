@@ -34,3 +34,23 @@ Scenario: Scenario 1
 	Then I open the cart
 		And I verify "first" item is in the cart
 		And I verify "last" item is in the cart
+	When I remove "first" item from cart
+	Then I continue with shoping
+	When I add "previous of last" item in the cart
+	Then I open the cart
+		And I verify "previous of last" item is in the cart
+		And I verify "last" item is in the cart
+	When I go to checkout
+	Then I fill first name = "Svetlana"
+		And I fill last name = "Norka"
+		And I fill zip code = "1000"
+	When I press continue
+	Then I finish the order
+		And I verify the checkout is completed
+	When I press Back Home
+	Then I verify the cart is empty
+	When I press burger menu
+	Then I logout from the system
+
+Scenario: Scenario 2
+	Given I log in with the standard user

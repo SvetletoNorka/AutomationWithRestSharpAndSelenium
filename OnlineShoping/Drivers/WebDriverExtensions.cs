@@ -36,62 +36,6 @@ namespace OnlineShoping.Drivers
             element.Click();
         }
 
-        public PostsTextHref CollectElementsUntil(By scrollingElements, int timeoutInSeconds = 10)
-        {
-            WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(timeoutInSeconds));
-            bool reachedStopElement = false;
-            IList<IWebElement> pageElements;
-
-            while (!reachedStopElement)
-            {
-                pageElements = _driver.FindElements(scrollingElements);
-
-                foreach (var element in pageElements)
-                {
-                    postsTextHref.UniqueTexts.Add(element.Text);
-                    postsTextHref.Hrefs.Add(element.GetAttribute("href"));
-                }
-
-                ((IJavaScriptExecutor)_driver).ExecuteScript("window.scrollTo(0, document.body.scrollHeight);");
-
-                try
-                {
-                    wait.Until(d =>
-                    {
-                        var newPageElements = d.FindElements(scrollingElements);
-                        return newPageElements.Count > pageElements.Count;
-                    });
-                }
-                catch (WebDriverTimeoutException)
-                {
-                    reachedStopElement = true;
-                    break;
-                }
-            }
-
-            return postsTextHref;
-        }
-
-        public void ScrollUpUntilElementFound(By by, int timeoutInSeconds = 10)
-        {
-            WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(timeoutInSeconds));
-            IWebElement element = _driver.FindElement(by);
-            ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", element);
-        }
-
-        public IWebElement ScrollAndFindElement(By by, int timeoutInSeconds = 10)
-        {
-            WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(timeoutInSeconds));
-
-            IWebElement element = wait.Until(driver => driver.FindElement(by));
-
-            ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", element);
-
-            wait.Until(driver => element.Displayed && element.Enabled);
-
-            return element;
-        }
-
         public void AssertElementIsDisplayed(By by, int timeoutInSeconds = 10)
         {
             try
