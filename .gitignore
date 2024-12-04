@@ -33,3 +33,5 @@ packages/
 *.jfm
 *.pdb
 *.mdb
+
+*.feature.cs
