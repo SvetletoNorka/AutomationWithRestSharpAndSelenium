@@ -15,14 +15,6 @@ namespace OnlineShoping.Drivers
             _wait = new WebDriverWait(driver, waitTime);
         }
 
-        public class PostsTextHref
-        {
-            public HashSet<string> UniqueTexts { get; set; } = new HashSet<string>();
-            public HashSet<string> Hrefs { get; set; } = new HashSet<string>();
-        }
-
-        private PostsTextHref postsTextHref = new PostsTextHref();
-
         public void FindAndClick(By by)
         {
             // Wait for the element to be clickable
@@ -84,6 +76,27 @@ namespace OnlineShoping.Drivers
             catch (WebDriverTimeoutException)
             {
                 Console.WriteLine($"Element with selector {by} was not visible within {timeoutInSeconds} seconds.");
+            }
+        }
+
+        public void SelectOptionFromMenu(By menuLocator, string optionText, int timeoutInSeconds = 10)
+        {
+            try
+            {
+                WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(timeoutInSeconds));
+                IWebElement dropdownElement = wait.Until(driver => driver.FindElement(menuLocator));
+
+                var selectElement = new SelectElement(dropdownElement);
+
+                selectElement.SelectByText(optionText);
+            }
+            catch (WebDriverTimeoutException)
+            {
+                Console.WriteLine($"Menu with selector {menuLocator} was not visible within {timeoutInSeconds} seconds.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
             }
         }
 
