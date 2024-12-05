@@ -11,6 +11,7 @@ namespace OnlineShoping.StepDefinitions
         private readonly WebDriverExtensions _webDriverExtensions;
 
         // Locators
+        private readonly By checkout = By.Id("checkout");
         private readonly By firstName = By.Id("first-name");
         private readonly By lastName = By.Id("last-name");
         private readonly By zipCode = By.Id("postal-code");
@@ -23,6 +24,12 @@ namespace OnlineShoping.StepDefinitions
         {
             _driver = WebDriverController.Driver;
             _webDriverExtensions = new WebDriverExtensions(_driver, TimeSpan.FromSeconds(10));
+        }
+
+        [When(@"I go to checkout")]
+        public void WhenIGoToCheckout()
+        {
+            _webDriverExtensions.FindAndClick(checkout);
         }
 
         [Then(@"I fill first name = ""([^""]*)""")]
