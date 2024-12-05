@@ -1,5 +1,7 @@
-﻿using NUnit.Framework;
+﻿using AventStack.ExtentReports;
+using NUnit.Framework;
 using OnlineShoping.Drivers;
+using OnlineShoping.Reporting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using TechTalk.SpecFlow;
@@ -15,7 +17,7 @@ namespace OnlineShoping.StepDefinitions
         private string lastItemName;
         private string previousOflastItemName;
 
-        // Locators for product list and add-to-cart button
+        // Locators for product list 
         private readonly By productList = By.CssSelector(".inventory_item");
         private readonly By burgerMenu = By.Id("react-burger-menu-btn");
         private readonly By logOut = By.Id("logout_sidebar_link");
@@ -31,57 +33,97 @@ namespace OnlineShoping.StepDefinitions
         [When(@"I press burger menu")]
         public void WhenIPressBurgerMenu()
         {
-            _webDriverExtensions.FindAndClick(burgerMenu);
+            try
+            {
+                _webDriverExtensions.FindAndClick(burgerMenu);
+                Reporter.LogToReport(Status.Info, "Clicked on the burger menu.");
+            }
+            catch (Exception ex)
+            {
+                Reporter.LogToReport(Status.Error, $"Failed to click the burger menu: {ex.Message}");
+                throw;
+            }
         }
 
         [Then(@"I logout from the system")]
         public void ThenILogoutFromTheSystem()
         {
-            _webDriverExtensions.FindAndClick(logOut);
+            try
+            {
+                _webDriverExtensions.FindAndClick(logOut);
+                Reporter.LogToReport(Status.Pass, "Logged out successfully.");
+            }
+            catch (Exception ex)
+            {
+                Reporter.LogToReport(Status.Error, $"Failed to log out: {ex.Message}");
+                throw;
+            }
         }
 
         [When(@"I select sorting = ""([^""]*)""")]
         public void WhenISelectSorting(string sorting)
         {
-            _webDriverExtensions.SelectOptionFromMenu(sortingMenu, sorting);
+            try
+            {
+                _webDriverExtensions.SelectOptionFromMenu(sortingMenu, sorting);
+                Reporter.LogToReport(Status.Info, $"Selected sorting option: {sorting}");
+            }
+            catch (Exception ex)
+            {
+                Reporter.LogToReport(Status.Error, $"Failed to select sorting option '{sorting}': {ex.Message}");
+                throw;
+            }
         }
 
         [Then(@"I verify that the sorting of items by descending price is correct")]
         public void ThenIVerifyThatTheSortingOfItemsByDescendingPriceIsCorrect()
         {
-            // Wait loading of list of product
-            WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
-            wait.Until(driver => driver.FindElements(productList).Count > 0);
-
-            // Gathering the prices
-            List<decimal> productPrices = new List<decimal>();
-            var priceElements = _driver.FindElements(prices);
-
-            foreach (var priceElement in priceElements)
+            try
             {
-                string priceText = priceElement.Text.Trim('$'); // Remove $ symbol
-                decimal price = Convert.ToDecimal(priceText);
-                productPrices.Add(price);
-            }
+                // Wait for loading of the product list
+                WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+                wait.Until(driver => driver.FindElements(productList).Count > 0);
+                Reporter.LogToReport(Status.Info, "Product list loaded successfully.");
 
-            // Sort the prices in descending order
-            var sortedPrices = productPrices.OrderByDescending(p => p).ToList();
+                // Gather the prices
+                List<decimal> productPrices = new List<decimal>();
+                var priceElements = _driver.FindElements(prices);
 
-            // Assert: Check if the prices are correctly sorted
-            bool isSortedCorrectly = true;
-            for (int i = 0; i < productPrices.Count; i++)
-            {
-                if (productPrices[i] != sortedPrices[i])
+                foreach (var priceElement in priceElements)
                 {
-                    isSortedCorrectly = false;
-                    break;
+                    string priceText = priceElement.Text.Trim('$'); // Remove $ symbol
+                    decimal price = Convert.ToDecimal(priceText);
+                    productPrices.Add(price);
                 }
+                Reporter.LogToReport(Status.Info, $"Captured product prices: {string.Join(", ", productPrices)}");
+
+                // Sort the prices in descending order
+                var sortedPrices = productPrices.OrderByDescending(p => p).ToList();
+
+                // Assert: Check if the prices are correctly sorted
+                bool isSortedCorrectly = true;
+                for (int i = 0; i < productPrices.Count; i++)
+                {
+                    if (productPrices[i] != sortedPrices[i])
+                    {
+                        isSortedCorrectly = false;
+                        break;
+                    }
+                }
+
+                Assert.IsTrue(isSortedCorrectly, "The products are not sorted correctly by price in descending order.");
+                Reporter.LogToReport(Status.Pass, "Products are sorted correctly by price in descending order.");
             }
-
-            // Assert that the sorting is correct, display a message in case of failure 
-            Assert.IsTrue(isSortedCorrectly, "The products are not sorted correctly by price in descending order.");
-
-            Console.WriteLine("Price sorting works correctly.");
+            catch (AssertionException ex)
+            {
+                Reporter.LogToReport(Status.Fail, $"Price sorting verification failed: {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Reporter.LogToReport(Status.Error, $"An error occurred during sorting verification: {ex.Message}");
+                throw;
+            }
         }
     }
 }

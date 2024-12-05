@@ -1,5 +1,7 @@
-﻿using NUnit.Framework;
+﻿using AventStack.ExtentReports;
+using NUnit.Framework;
 using OnlineShoping.Drivers;
+using OnlineShoping.Reporting;
 using OpenQA.Selenium;
 using TechTalk.SpecFlow;
 
@@ -14,7 +16,7 @@ namespace OnlineShoping.StepDefinitions
         private string lastItemName;
         private string previousOflastItemName;
 
-        // Locators for product list and add-to-cart button
+        // Locators for cart 
         private readonly By productList = By.CssSelector(".inventory_item");
         private readonly By addTocart = By.CssSelector("button[name^='add-to-cart']");
         private readonly By cart = By.XPath("//*[@data-test='shopping-cart-link']");
@@ -31,47 +33,113 @@ namespace OnlineShoping.StepDefinitions
         [When(@"I add ""([^""]*)"" item in the cart")]
         public void WhenIAddItemInTheCart(string index)
         {
-            AddItemToCart(index);
+            try
+            {
+                AddItemToCart(index);
+                Reporter.LogToReport(Status.Pass, $"Successfully added the {index} item to the cart.");
+            }
+            catch (Exception ex)
+            {
+                Reporter.LogToReport(Status.Error, $"Failed to add the {index} item to the cart: {ex.Message}");
+                throw;
+            }
         }
 
         [Then(@"I open the cart")]
         public void ThenIOpenTheCart()
         {
-            _webDriverExtensions.FindAndClick(cart);
+            try
+            {
+                _webDriverExtensions.FindAndClick(cart);
+                Reporter.LogToReport(Status.Pass, "Opened the cart successfully.");
+            }
+            catch (Exception ex)
+            {
+                Reporter.LogToReport(Status.Error, $"Failed to open the cart: {ex.Message}");
+                throw;
+            }
         }
 
         [When(@"I remove ""([^""]*)"" item from cart")]
         public void WhenIRemoveItemFromCart(string index)
         {
-            if (index == "first")
-                RemoveItemFromCart(firstItemName);
-            if (index == "last")
-                RemoveItemFromCart(lastItemName);
-            if (index == "previous of last")
-                RemoveItemFromCart(previousOflastItemName);
+            try
+            {
+                if (index == "first")
+                    RemoveItemFromCart(firstItemName);
+                if (index == "last")
+                    RemoveItemFromCart(lastItemName);
+                if (index == "previous of last")
+                    RemoveItemFromCart(previousOflastItemName);
+
+                Reporter.LogToReport(Status.Pass, $"Successfully removed the {index} item from the cart.");
+            }
+            catch (Exception ex)
+            {
+                Reporter.LogToReport(Status.Error, $"Failed to remove the {index} item from the cart: {ex.Message}");
+                throw;
+            }
         }
 
         [Then(@"I continue with shoping")]
         public void ThenIContinueWithShoping()
         {
-            _webDriverExtensions.FindAndClick(continueShopping);
+            try
+            {
+                _webDriverExtensions.FindAndClick(continueShopping);
+                Reporter.LogToReport(Status.Pass, "Continued shopping successfully.");
+            }
+            catch (Exception ex)
+            {
+                Reporter.LogToReport(Status.Error, $"Failed to continue shopping: {ex.Message}");
+                throw;
+            }
         }
 
         [Then(@"I verify ""([^""]*)"" item is in the cart")]
         public void ThenIVerifyFirstItemIsInTheCart(string index)
         {
-            if (index == "first")
-                VerifyItemInCart(firstItemName);
-            if (index == "last")
-                VerifyItemInCart(lastItemName);
-            if (index == "previous of last")
-                VerifyItemInCart(previousOflastItemName);
+            try
+            {
+                if (index == "first")
+                    VerifyItemInCart(firstItemName);
+                if (index == "last")
+                    VerifyItemInCart(lastItemName);
+                if (index == "previous of last")
+                    VerifyItemInCart(previousOflastItemName);
+
+                Reporter.LogToReport(Status.Pass, $"Verified the {index} item is in the cart.");
+            }
+            catch (AssertionException ex)
+            {
+                Reporter.LogToReport(Status.Fail, $"Verification failed: The {index} item is not in the cart.");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Reporter.LogToReport(Status.Error, $"An error occurred during verification: {ex.Message}");
+                throw;
+            }
         }
 
         [Then(@"I verify the cart is empty")]
         public void ThenIVerifyTheCartIsEmpty()
         {
-            VerifyCartIsEmpty();
+            try
+            {
+                VerifyCartIsEmpty();
+                Reporter.LogToReport(Status.Pass, "Verified the cart is empty.");
+            }
+            catch (AssertionException ex)
+            {
+                Reporter.LogToReport(Status.Fail, "Verification failed: The cart is not empty.");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Reporter.LogToReport(Status.Error, $"An error occurred while verifying the cart: {ex.Message}");
+                throw;
+            }
         }
 
         // Helper method to add an item to the cart by index
@@ -132,7 +200,7 @@ namespace OnlineShoping.StepDefinitions
             // Check if the span.shopping_cart_badge is present
             bool isBadgePresent = cartLink.FindElements(cartBadge).Count == 0;
 
-            Assert.IsTrue(isBadgePresent);
+            Assert.IsTrue(isBadgePresent, "The cart is not empty.");
         }
     }
 }

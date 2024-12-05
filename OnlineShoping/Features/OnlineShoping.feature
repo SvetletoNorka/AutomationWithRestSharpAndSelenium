@@ -48,7 +48,7 @@ Scenario: Scenario 1
 		And I verify "previous of last" item is in the cart
 		And I verify "last" item is in the cart
 	When I go to checkout
-	Then I fill first name = "Svetlana"
+	Then I fill first name = "Svetleto"
 		And I fill last name = "Norka"
 		And I fill zip code = "1000"
 	When I press continue
