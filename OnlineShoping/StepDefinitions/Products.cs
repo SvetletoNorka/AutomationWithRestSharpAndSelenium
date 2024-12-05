@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using OnlineShoping.Drivers;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
@@ -67,7 +66,7 @@ namespace OnlineShoping.StepDefinitions
         [Then(@"I verify ""([^""]*)"" item is in the cart")]
         public void ThenIVerifyFirstItemIsInTheCart(string index)
         {
-            if(index == "first")
+            if (index == "first")
                 VerifyItemInCart(firstItemName);
             if (index == "last")
                 VerifyItemInCart(lastItemName);
@@ -143,8 +142,8 @@ namespace OnlineShoping.StepDefinitions
             Console.WriteLine("Price sorting works correctly.");
         }
 
-    // Helper method to add an item to the cart by index
-    private void AddItemToCart(string index)
+        // Helper method to add an item to the cart by index
+        private void AddItemToCart(string index)
         {
             var inventoryItems = _driver.FindElements(productList);
 
