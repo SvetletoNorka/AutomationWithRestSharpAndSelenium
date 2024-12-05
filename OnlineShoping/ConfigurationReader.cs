@@ -15,6 +15,7 @@ namespace OnlineShoping
         public string VisualUser { get; private set; }
         public string Password { get; private set; }
         public string Browser { get; private set; }
+        public bool IsHeadless { get; private set; }
 
         public ConfigurationReader()
         {
@@ -32,6 +33,7 @@ namespace OnlineShoping
             VisualUser = _configuration["ApplicationSettings:VisualUser"];
             Password = _configuration["ApplicationSettings:Password"];
             Browser = _configuration["ApplicationSettings:Browser"];
+            IsHeadless = bool.TryParse(_configuration["ApplicationSettings:IsHeadless"], out bool result) ? result : false;
         }
     }
 }
