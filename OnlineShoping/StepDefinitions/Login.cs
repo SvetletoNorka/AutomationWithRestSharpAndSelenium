@@ -45,13 +45,13 @@ namespace OnlineShoping.StepDefinitions
             try
             {
                 _webDriverExtensions.EnterTextInField(username, user, 10);
-                Reporter.LogToReport(Status.Pass, $"Entered username: {user}");
+                Reporter.LogToReport(Status.Info, $"Entered username: {user}");
 
                 _webDriverExtensions.EnterTextInField(password, config.Password, 10);
-                Reporter.LogToReport(Status.Pass, "Entered password successfully.");
+                Reporter.LogToReport(Status.Info, "Entered password successfully.");
 
                 _webDriverExtensions.FindAndClick(login);
-                Reporter.LogToReport(Status.Pass, "Clicked the login button successfully.");
+                Reporter.LogToReport(Status.Info, "Clicked the login button successfully.");
             }
             catch (Exception ex)
             {
