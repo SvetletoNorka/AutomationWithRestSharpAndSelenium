@@ -30,7 +30,7 @@ namespace OnlineShoping.StepDefinitions
             _webDriverExtensions = new WebDriverExtensions(_driver, TimeSpan.FromSeconds(10));
         }
 
-        [When(@"I add ""([^""]*)"" item in the cart")]
+        [When(@"I add ""(first|last|previous of last)"" item in the cart")]
         public void WhenIAddItemInTheCart(string index)
         {
             try
@@ -96,7 +96,7 @@ namespace OnlineShoping.StepDefinitions
             }
         }
 
-        [Then(@"I verify ""([^""]*)"" item is in the cart")]
+        [Then(@"I verify ""(first|last|previous of last)"" item is in the cart")]
         public void ThenIVerifyFirstItemIsInTheCart(string index)
         {
             try

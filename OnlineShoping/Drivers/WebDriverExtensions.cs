@@ -28,19 +28,19 @@ namespace OnlineShoping.Drivers
                 });
 
                 element.Click();
-                Reporter.LogToReport(Status.Pass, $"Clicked the element located by {by} successfully.");
+                Reporter.LogToReport(Status.Info, $"Clicked the element located by {by} successfully.");
             }
             catch (Exception ex)
             {
                 // Log failure to the report
-                Reporter.LogToReport(Status.Fail, $"Failed to click the element located by {by}: {ex.Message}");
+                Reporter.LogToReport(Status.Info, $"Failed to click the element located by {by}: {ex.Message}");
 
                 // Capture the screenshot in case of failure
                 var screenShots = new ScreenShots(_driver);  // Initialize the ScreenShots class with the driver
                 string screenshotPath = screenShots.CaptureScreenshot($"Failed_Click_{DateTime.Now:yyyyMMdd_HHmmss}");
 
                 // Log the screenshot path in the report
-                Reporter.LogToReport(Status.Fail, $"Screenshot captured: {screenshotPath}");
+                Reporter.LogToReport(Status.Info, $"Screenshot captured: {screenshotPath}");
 
                 // Rethrow the exception to let the test fail
                 throw;
@@ -71,7 +71,7 @@ namespace OnlineShoping.Drivers
                 });
 
                 Assert.IsTrue(element != null && element.Displayed, $"The element located by {by} is not displayed on the page.");
-                Reporter.LogToReport(Status.Pass, $"Verified that the element located by {by} is displayed.");
+                Reporter.LogToReport(Status.Info, $"Verified that the element located by {by} is displayed.");
             }
             catch (WebDriverTimeoutException)
             {
@@ -80,8 +80,8 @@ namespace OnlineShoping.Drivers
                 string screenshotPath = screenShots.CaptureScreenshot($"Failed_Display_{DateTime.Now:yyyyMMdd_HHmmss}");
 
                 // Log failure and screenshot path
-                Reporter.LogToReport(Status.Fail, $"The element located by {by} was not visible within {timeoutInSeconds} seconds.");
-                Reporter.LogToReport(Status.Fail, $"Screenshot captured: {screenshotPath}");
+                Reporter.LogToReport(Status.Info, $"The element located by {by} was not visible within {timeoutInSeconds} seconds.");
+                Reporter.LogToReport(Status.Info, $"Screenshot captured: {screenshotPath}");
 
                 // Fail the test
                 Assert.Fail($"The element located by {by} was not visible within {timeoutInSeconds} seconds.");
@@ -97,7 +97,7 @@ namespace OnlineShoping.Drivers
 
                 inputField.Clear();
                 inputField.SendKeys(text);
-                Reporter.LogToReport(Status.Pass, $"Entered text '{text}' in the field located by {by} successfully.");
+                Reporter.LogToReport(Status.Info, $"Entered text '{text}' in the field located by {by} successfully.");
             }
             catch (NoSuchElementException)
             {
@@ -106,8 +106,8 @@ namespace OnlineShoping.Drivers
                 string screenshotPath = screenShots.CaptureScreenshot($"Failed_EnterText_{DateTime.Now:yyyyMMdd_HHmmss}");
 
                 // Log failure and screenshot path
-                Reporter.LogToReport(Status.Fail, $"Failed to find the element located by {by} to enter text '{text}'.");
-                Reporter.LogToReport(Status.Fail, $"Screenshot captured: {screenshotPath}");
+                Reporter.LogToReport(Status.Info, $"Failed to find the element located by {by} to enter text '{text}'.");
+                Reporter.LogToReport(Status.Info, $"Screenshot captured: {screenshotPath}");
 
                 throw;
             }
@@ -118,8 +118,8 @@ namespace OnlineShoping.Drivers
                 string screenshotPath = screenShots.CaptureScreenshot($"Failed_Timeout_{DateTime.Now:yyyyMMdd_HHmmss}");
 
                 // Log failure and screenshot path
-                Reporter.LogToReport(Status.Fail, $"Element with selector {by} was not visible within {timeoutInSeconds} seconds to enter text '{text}'.");
-                Reporter.LogToReport(Status.Fail, $"Screenshot captured: {screenshotPath}");
+                Reporter.LogToReport(Status.Info, $"Element with selector {by} was not visible within {timeoutInSeconds} seconds to enter text '{text}'.");
+                Reporter.LogToReport(Status.Info, $"Screenshot captured: {screenshotPath}");
 
                 throw;
             }
@@ -135,7 +135,7 @@ namespace OnlineShoping.Drivers
                 var selectElement = new SelectElement(dropdownElement);
                 selectElement.SelectByText(optionText);
 
-                Reporter.LogToReport(Status.Pass, $"Selected option '{optionText}' from the dropdown menu located by {menuLocator}.");
+                Reporter.LogToReport(Status.Info, $"Selected option '{optionText}' from the dropdown menu located by {menuLocator}.");
             }
             catch (WebDriverTimeoutException)
             {
@@ -144,8 +144,8 @@ namespace OnlineShoping.Drivers
                 string screenshotPath = screenShots.CaptureScreenshot($"Failed_Timeout_SelectOption_{DateTime.Now:yyyyMMdd_HHmmss}");
 
                 // Log failure and screenshot path
-                Reporter.LogToReport(Status.Fail, $"Menu with selector {menuLocator} was not visible within {timeoutInSeconds} seconds.");
-                Reporter.LogToReport(Status.Fail, $"Screenshot captured: {screenshotPath}");
+                Reporter.LogToReport(Status.Info, $"Menu with selector {menuLocator} was not visible within {timeoutInSeconds} seconds.");
+                Reporter.LogToReport(Status.Info, $"Screenshot captured: {screenshotPath}");
 
                 throw;
             }
@@ -156,8 +156,8 @@ namespace OnlineShoping.Drivers
                 string screenshotPath = screenShots.CaptureScreenshot($"Failed_SelectOption_{DateTime.Now:yyyyMMdd_HHmmss}");
 
                 // Log failure and screenshot path
-                Reporter.LogToReport(Status.Fail, $"Failed to select option '{optionText}' from the menu located by {menuLocator}: {ex.Message}");
-                Reporter.LogToReport(Status.Fail, $"Screenshot captured: {screenshotPath}");
+                Reporter.LogToReport(Status.Info, $"Failed to select option '{optionText}' from the menu located by {menuLocator}: {ex.Message}");
+                Reporter.LogToReport(Status.Info, $"Screenshot captured: {screenshotPath}");
 
                 throw;
             }
@@ -168,7 +168,7 @@ namespace OnlineShoping.Drivers
             try
             {
                 string itemName = element.Text.Split(new[] { "\r\n" }, StringSplitOptions.None)[0];
-                Reporter.LogToReport(Status.Pass, $"Read item name: '{itemName}'.");
+                Reporter.LogToReport(Status.Info, $"Read item name: '{itemName}'.");
                 return itemName;
             }
             catch (Exception ex)
@@ -178,8 +178,8 @@ namespace OnlineShoping.Drivers
                 string screenshotPath = screenShots.CaptureScreenshot($"Failed_ReadItemName_{DateTime.Now:yyyyMMdd_HHmmss}");
 
                 // Log failure and screenshot path
-                Reporter.LogToReport(Status.Fail, $"Failed to read item name: {ex.Message}");
-                Reporter.LogToReport(Status.Fail, $"Screenshot captured: {screenshotPath}");
+                Reporter.LogToReport(Status.Info, $"Failed to read item name: {ex.Message}");
+                Reporter.LogToReport(Status.Info, $"Screenshot captured: {screenshotPath}");
 
                 throw;
             }

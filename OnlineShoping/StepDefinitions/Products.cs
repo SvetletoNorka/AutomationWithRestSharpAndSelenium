@@ -36,7 +36,7 @@ namespace OnlineShoping.StepDefinitions
             try
             {
                 _webDriverExtensions.FindAndClick(burgerMenu);
-                Reporter.LogToReport(Status.Info, "Clicked on the burger menu.");
+                Reporter.LogToReport(Status.Pass, "Clicked on the burger menu.");
             }
             catch (Exception ex)
             {
