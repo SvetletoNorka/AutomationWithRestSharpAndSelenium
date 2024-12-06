@@ -29,6 +29,7 @@ Execute one or many Assertions
 using APIRestSharp.APIClient;
 using APIRestSharp.Operations;
 using APIRestSharp.Reporting;
+using AventStack.ExtentReports;
 using Newtonsoft.Json.Linq;
 
 namespace APIRestSharp.APITests
@@ -78,14 +79,30 @@ namespace APIRestSharp.APITests
         [Test]
         public void Test_GetUserDetails_InvalidUserId()
         {
+            // Create a test in the Extent report
             Reporter.CreateTest("Test_GetUserDetails_InvalidUserId");
 
             int userId = 999;  // Invalid user Id
+            string expectedErrorMessage = $"API call failed for user ID {userId}";
 
-            Assert.Throws<Exception>(() =>
+            // Use Assert.Throws to verify that the exception is thrown
+            var ex = Assert.Throws<Exception>(() =>
             {
-                _userApiOperations.GetUserDetails(userId);
+                _userApiOperations.GetUserDetails(userId);  // Method call that should throw an exception
             });
+
+            // Check if the exception message is what we expected
+            if (ex.Message.Contains(expectedErrorMessage))
+            {
+                // Log the success in the report
+                Reporter.LogToReport(Status.Pass, $"Test passed. Exception was thrown as expected: {ex.Message}");
+            }
+            else
+            {
+                // Log failure if the exception message doesn't match the expected message
+                Reporter.LogToReport(Status.Fail, $"Test failed. Unexpected exception message: {ex.Message}");
+                Assert.Fail($"Unexpected exception message: {ex.Message}");
+            }
         }
 
         // Flush the report after all tests are completed
