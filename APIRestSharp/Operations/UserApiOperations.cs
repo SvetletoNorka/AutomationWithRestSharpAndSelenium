@@ -154,6 +154,41 @@ namespace APIRestSharp.Operations
             );
         }
 
+        // Method to delete a user by ID
+        public void DeleteUser(int userId)
+        {
+            var request = RestClientHelper.CreateRequest($"api/users/{userId}", Method.Delete);
+            var response = _apiClient.ExecuteRequest(request);
+
+            if (response.StatusCode != System.Net.HttpStatusCode.NoContent)
+            {
+                var errorMessage = $"Failed to delete user with ID {userId}. HTTP Status: {response.StatusCode}, Response: {response.Content}";
+                Reporter.LogToReport(Status.Fail, errorMessage);
+                Console.WriteLine(errorMessage);
+                throw new Exception(errorMessage);
+            }
+
+            Reporter.LogToReport(Status.Pass, $"User with ID {userId} successfully deleted. HTTP 204 No Content.");
+        }
+
+        // Method to validate that a user does not exist after deletion
+        public void ValidateDeletedUserResponse(int userId)
+        {
+            var request = RestClientHelper.CreateRequest($"api/users/{userId}", Method.Get);
+            var response = _apiClient.ExecuteRequest(request);
+
+            // Expect a 404 status when trying to retrieve the deleted user
+            if (response.StatusCode != System.Net.HttpStatusCode.NotFound)
+            {
+                var errorMessage = $"User with ID {userId} still exists. Expected 404 Not Found but got {response.StatusCode}.";
+                Reporter.LogToReport(Status.Fail, errorMessage);
+                Console.WriteLine(errorMessage);
+                throw new Exception(errorMessage);
+            }
+
+            Reporter.LogToReport(Status.Pass, $"User with ID {userId} successfully deleted and no longer exists.");
+        }
+
         // Helper method to assert the details of the extracted user
         public void AssertUserDetails(JObject user, int expectedId, string expectedEmail, string expectedFirstName)
         {

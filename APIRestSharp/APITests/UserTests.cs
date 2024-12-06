@@ -121,6 +121,26 @@ namespace APIRestSharp.APITests
             _userApiOperations.ValidateCreatedUserResponse(responseJson, uniqueName, job);
         }
 
+        [Test]
+        public void Test_DeleteNewlyCreatedUser()
+        {
+            Reporter.CreateTest("Test_DeleteNewlyCreatedUser");
+
+            // Generate unique user data
+            string uniqueName = $"User_{DateTime.Now:yyyyMMdd_HHmmss}";
+            string job = "Software Developer";
+            var userResponseJson = _userApiOperations.CreateUser(uniqueName, job);
+
+            // Extract user ID from the response for deletion
+            int userId = (int)userResponseJson["id"];
+
+            // Delete the newly created user
+            _userApiOperations.DeleteUser(userId);
+
+            // Verify that the user no longer exists (404 Not Found)
+            _userApiOperations.ValidateDeletedUserResponse(userId);
+        }
+
         // Flush the report after all tests are completed
         [TearDown]
         public void TearDown()
