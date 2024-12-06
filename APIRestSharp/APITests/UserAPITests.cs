@@ -107,23 +107,27 @@ namespace APIRestSharp.APITests
             int userId = 23;  // Invalid user Id
             string expectedErrorMessage = $"API call failed for user ID {userId}";
 
-            // Use Assert.Throws to verify that the exception is thrown
-            var ex = Assert.Throws<Exception>(() =>
+            try
             {
-                _userApiOperations.GetUserDetails(userId);  // Method call that should throw an exception
-            });
+                _userApiOperations.GetUserDetails(userId);
+                Reporter.LogToReport(Status.Fail, $"Test failed. User with ID: {userId} is found.");
+                Assert.Fail($"Test failed. User with ID: {userId} is found.");
 
-            // Check if the exception message is what we expected
-            if (ex.Message.Contains(expectedErrorMessage))
-            {
-                // Log the success in the report
-                Reporter.LogToReport(Status.Pass, $"Test passed. Exception was thrown as expected: {ex.Message}");
             }
-            else
+            catch (Exception ex)
             {
-                // Log failure if the exception message doesn't match the expected message
-                Reporter.LogToReport(Status.Fail, $"Test failed. Unexpected exception message: {ex.Message}");
-                Assert.Fail($"Unexpected exception message: {ex.Message}");
+                // Check if the exception message is what we expected
+                if (ex.Message.Contains(expectedErrorMessage))
+                {
+                    // Log the success in the report
+                    Reporter.LogToReport(Status.Pass, $"Test passed. Exception was thrown as expected: {ex.Message}");
+                }
+                else
+                {
+                    // Log failure if the exception message doesn't match the expected message
+                    Reporter.LogToReport(Status.Fail, $"Test failed. Unexpected exception message: {ex.Message}");
+                    Assert.Fail($"Unexpected exception message: {ex.Message}");
+                }
             }
         }
 
