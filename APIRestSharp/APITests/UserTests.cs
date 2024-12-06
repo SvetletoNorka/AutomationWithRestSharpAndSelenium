@@ -27,14 +27,16 @@ Execute one or many Assertions
  ********************/
 
 using APIRestSharp.APIClient;
+using APIRestSharp.Operations;
+using Newtonsoft.Json.Linq;
 
-namespace APIRestSharp.Tests
+namespace APIRestSharp.APITests
 {
     [TestFixture]
     public class ApiUsersOperationsTests
     {
         private ApiClient _apiClient;
-        private ApiUsersOperations _userService;
+        private UserApiOperations _userApiOperations;
 
         [SetUp]
         public void Setup()
@@ -44,15 +46,37 @@ namespace APIRestSharp.Tests
             string baseUrl = configuration["ApiSettings:BaseUrl"];
 
             _apiClient = new ApiClient(baseUrl);
-            _userService = new ApiUsersOperations(_apiClient);  
+            _userApiOperations = new UserApiOperations(_apiClient);
         }
 
         [Test]
         public void Test_ExtractAndSortAllUsers()
         {
-            var allUsers = _userService.GetAllUsers();  // Get users from API
-            var sortedUsers = _userService.SortUsersByFirstName(allUsers);  // Sort users by First Name
-            _userService.PrintUsers(sortedUsers);  // Print sorted users to console
+            var allUsers = _userApiOperations.GetAllUsers();  // Get users from API
+            var sortedUsers = _userApiOperations.SortUsersByFirstName(allUsers);  // Sort users by First Name
+            _userApiOperations.PrintUsers(sortedUsers);  // Print sorted users to console
+        }
+
+        [Test]
+        public void Test_GetUserDetails_ValidUserId()
+        {
+            int userId = 2;  // Valid user ID
+            var user = _userApiOperations.GetUserDetails(userId);
+
+            _userApiOperations.AssertUserDetails(user, userId, "janet.weaver@reqres.in", "Janet");
+
+            _userApiOperations.PrintUsers(new List<JObject> { user });
+        }
+
+        [Test]
+        public void Test_GetUserDetails_InvalidUserId()
+        {
+            int userId = 999;  // Invalid user Id
+
+            Assert.Throws<Exception>(() =>
+            {
+                _userApiOperations.GetUserDetails(userId);
+            });
         }
     }
 }

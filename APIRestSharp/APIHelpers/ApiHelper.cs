@@ -1,6 +1,6 @@
 ﻿using RestSharp;
 
-namespace APIRestSharp
+namespace APIRestSharp.APIHelpers
 {
     public static class ApiHelper
     {
