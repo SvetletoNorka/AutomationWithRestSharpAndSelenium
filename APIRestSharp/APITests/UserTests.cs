@@ -28,6 +28,7 @@ Execute one or many Assertions
 
 using APIRestSharp.APIClient;
 using APIRestSharp.Operations;
+using APIRestSharp.Reporting;
 using Newtonsoft.Json.Linq;
 
 namespace APIRestSharp.APITests
@@ -37,10 +38,13 @@ namespace APIRestSharp.APITests
     {
         private ApiClient _apiClient;
         private UserApiOperations _userApiOperations;
+        private static readonly string reportPath = Path.Combine(Directory.GetCurrentDirectory(), "APITestsResults", $"APITestsResults_{DateTime.Now:yyyyMMdd_HHmmss}.html");
 
         [SetUp]
         public void Setup()
         {
+            Reporter.SetUpExtentReport("API Tests", "Automation Test Results", reportPath);
+
             // Load the configuration from appsettings.json
             var configuration = ConfigurationReader.GetConfiguration();
             string baseUrl = configuration["ApiSettings:BaseUrl"];
@@ -52,6 +56,7 @@ namespace APIRestSharp.APITests
         [Test]
         public void Test_ExtractAndSortAllUsers()
         {
+            Reporter.CreateTest("Test_ExtractAndSortAllUsers");
             var allUsers = _userApiOperations.GetAllUsers();  // Get users from API
             var sortedUsers = _userApiOperations.SortUsersByFirstName(allUsers);  // Sort users by First Name
             _userApiOperations.PrintUsers(sortedUsers);  // Print sorted users to console
@@ -60,6 +65,8 @@ namespace APIRestSharp.APITests
         [Test]
         public void Test_GetUserDetails_ValidUserId()
         {
+            Reporter.CreateTest("Test_GetUserDetails_ValidUserId");
+
             int userId = 2;  // Valid user ID
             var user = _userApiOperations.GetUserDetails(userId);
 
@@ -71,12 +78,21 @@ namespace APIRestSharp.APITests
         [Test]
         public void Test_GetUserDetails_InvalidUserId()
         {
+            Reporter.CreateTest("Test_GetUserDetails_InvalidUserId");
+
             int userId = 999;  // Invalid user Id
 
             Assert.Throws<Exception>(() =>
             {
                 _userApiOperations.GetUserDetails(userId);
             });
+        }
+
+        // Flush the report after all tests are completed
+        [TearDown]
+        public void TearDown()
+        {
+            Reporter.FlushReport(); // This writes all collected data into the report file
         }
     }
 }

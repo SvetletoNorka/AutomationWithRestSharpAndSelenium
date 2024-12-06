@@ -1,6 +1,8 @@
 ﻿using APIRestSharp.APIClient;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using AventStack.ExtentReports;
+using APIRestSharp.Reporting; 
 
 namespace APIRestSharp.Operations
 {
@@ -23,6 +25,9 @@ namespace APIRestSharp.Operations
 
             do
             {
+                // Log the request to get users from the current page
+                Reporter.LogToReport(Status.Info, $"Fetching users from page {currentPage}");
+
                 // Get users for the current page
                 var users = GetUsersFromPage(currentPage);
                 allUsers.AddRange(users);
@@ -34,12 +39,15 @@ namespace APIRestSharp.Operations
                     var response = _apiClient.ExecuteRequest(request);
                     var jsonResponse = JObject.Parse(response.Content);
                     totalPages = (int)jsonResponse["total_pages"];
+                    Reporter.LogToReport(Status.Info, $"Total pages available: {totalPages}");
                 }
 
                 currentPage++;
             } while (currentPage <= totalPages); // Continue fetching users until we have data from all pages
 
-            return allUsers; // Return the collected list of all users
+            // Return the collected list of all users
+            Reporter.LogToReport(Status.Pass, $"Successfully retrieved all users:\n{allUsers}");
+            return allUsers;
         }
 
         // Helper method to fetch users from a specific page
@@ -49,15 +57,24 @@ namespace APIRestSharp.Operations
             var response = _apiClient.ExecuteRequest(request);
 
             if (!response.IsSuccessful)
-                throw new Exception($"API call failed on page {pageNumber}");
+            {
+                var errorMessage = $"API call failed on page {pageNumber}";
+                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
+                throw new Exception(errorMessage);
+            }
 
             var jsonResponse = JObject.Parse(response.Content);
             var users = jsonResponse["data"];
 
             if (users == null)
-                throw new Exception($"No users found on page {pageNumber}");
+            {
+                var errorMessage = $"No users found on page {pageNumber}";
+                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
+                throw new Exception(errorMessage);
+            }
 
-            // Convert each user to JObject and return the list
+            // Log success and return users
+            Reporter.LogToReport(Status.Pass, $"Successfully retrieved users from page {pageNumber}");
             return users.Select(user => (JObject)user).ToList();
         }
 
@@ -70,17 +87,23 @@ namespace APIRestSharp.Operations
             if (!response.IsSuccessful)
             {
                 var errorMessage = $"API call failed for user ID {userId}";
-                Console.WriteLine(errorMessage);  
-                throw new Exception(errorMessage);  
+                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
+                Console.WriteLine(errorMessage);  // Log to console
+                throw new Exception(errorMessage);
             }
 
             var jsonResponse = JObject.Parse(response.Content);
             var user = jsonResponse["data"];
 
             if (user == null)
-                throw new Exception($"User with ID {userId} not found");
+            {
+                var errorMessage = $"User with ID {userId} not found";
+                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
+                throw new Exception(errorMessage);
+            }
 
-            // Return the user details as JObject
+            // Log success and return user details
+            Reporter.LogToReport(Status.Pass, "Successfully retrieved details for user ID");
             return user as JObject;
         }
 
@@ -88,36 +111,68 @@ namespace APIRestSharp.Operations
         public void AssertUserDetails(JObject user, int expectedId, string expectedEmail, string expectedFirstName)
         {
             if (user == null)
-                throw new Exception("User data is null");
+            {
+                var errorMessage = "User data is null";
+                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
+                throw new Exception(errorMessage);
+            }
 
             // Assert that the user ID matches the expected ID
             if ((int)user["id"] != expectedId)
-                throw new Exception($"Expected user ID {expectedId}, but got {(int)user["id"]}");
+            {
+                var errorMessage = $"Expected user ID {expectedId}, but got {(int)user["id"]}";
+                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
+                throw new Exception(errorMessage);
+            }
 
             // Assert that the user's email matches the expected email
             if ((string)user["email"] != expectedEmail)
-                throw new Exception($"Expected email {expectedEmail}, but got {(string)user["email"]}");
+            {
+                var errorMessage = $"Expected email {expectedEmail}, but got {(string)user["email"]}";
+                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
+                throw new Exception(errorMessage);
+            }
 
             // Assert that the user's first name matches the expected first name
             if ((string)user["first_name"] != expectedFirstName)
-                throw new Exception($"Expected first name {expectedFirstName}, but got {(string)user["first_name"]}");
+            {
+                var errorMessage = $"Expected first name {expectedFirstName}, but got {(string)user["first_name"]}";
+                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
+                throw new Exception(errorMessage);
+            }
+
+            // Log success after all assertions pass
+            Reporter.LogToReport(Status.Pass, "User details are as expected.");
         }
 
         // Method to sort the list of users by their first name
         public List<JObject> SortUsersByFirstName(List<JObject> users)
         {
             // Order the users by first name and return the sorted list
-            return users.OrderBy(user => (string)user["first_name"]).ToList();
+            var sortedUsers = users.OrderBy(user => (string)user["first_name"]).ToList();
+            Reporter.LogToReport(Status.Pass, "Successfully sorted users by first name.");
+            return sortedUsers;
         }
 
         // Method to print the details of each user
         public void PrintUsers(List<JObject> users)
         {
+            // Iterate through each user and print their details
             foreach (var user in users)
             {
-                // Print the ID, email, and first name of each user
-                Console.WriteLine($"ID: {user["id"]}, Email: {user["email"]}, First Name: {user["first_name"]}");
+                // Include Last Name in the user details
+                string userDetails = $"ID: {user["id"]}, Email: {user["email"]}, First Name: {user["first_name"]}, Last Name: {user["last_name"]}";
+
+                // Print to the console
+                Console.WriteLine(userDetails);
+
+                // Log to the ExtentReport as well
+                Reporter.LogToReport(Status.Info, userDetails); // Logs user details into the report
             }
+
+            // Log a message in the report indicating that the user details were successfully printed
+            Reporter.LogToReport(Status.Pass, "Successfully printed all user details (ID, Email, First Name, Last Name) to console and report.");
         }
+
     }
 }
