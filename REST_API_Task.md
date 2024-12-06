@@ -9,9 +9,6 @@ The following tools/libraries can be used:
 * Postman -> Download [here](https://www.postman.com/downloads/)
 * Pure code implementation for testing REST services (REST-Assured for Java, RestSharp for .Net, Requests for Python or any other)
 
-Organize your solution in a zip archive and send it back. 
-Note! Please remove all the compiled/built data, if any. 
-
 ## Scenario
 1. List available users
 	- GET */api/users?page=1*
