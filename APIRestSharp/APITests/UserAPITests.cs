@@ -35,7 +35,7 @@ using Newtonsoft.Json.Linq;
 namespace APIRestSharp.APITests
 {
     [TestFixture]
-    public class ApiUsersOperationsTests
+    public class UserAPITests
     {
         private ApiClient _apiClient;
         private UserApiOperations _userApiOperations;
@@ -58,9 +58,20 @@ namespace APIRestSharp.APITests
         public void Test_ExtractAndSortAllUsers()
         {
             Reporter.CreateTest("Test_ExtractAndSortAllUsers");
-            var allUsers = _userApiOperations.GetAllUsers();  // Get users from API
-            var sortedUsers = _userApiOperations.SortUsersByFirstName(allUsers);  // Sort users by First Name
-            _userApiOperations.PrintUsers(sortedUsers);  // Print sorted users to console
+
+            try
+            {
+                var allUsers = _userApiOperations.GetAllUsers();  // Get users from API
+                var sortedUsers = _userApiOperations.SortUsersByFirstName(allUsers);  // Sort users by First Name
+                _userApiOperations.PrintUsers(sortedUsers);  // Print sorted users to console
+
+                Reporter.LogToReport(Status.Pass, "Test passed. The list of users is successfully sorted by first name.");
+            }
+            catch (Exception ex)
+            {
+                Reporter.LogToReport(Status.Fail, $"Test failed.");
+                Assert.Fail($"Test failed. Exception message: {ex.Message}");
+            }
         }
 
         [Test]
@@ -69,11 +80,22 @@ namespace APIRestSharp.APITests
             Reporter.CreateTest("Test_GetUserDetails_ValidUserId");
 
             int userId = 2;  // Valid user ID
-            var user = _userApiOperations.GetUserDetails(userId);
 
-            _userApiOperations.AssertUserDetails(user, userId, "janet.weaver@reqres.in", "Janet");
+            try
+            {
+                var user = _userApiOperations.GetUserDetails(userId);
 
-            _userApiOperations.PrintUsers(new List<JObject> { user });
+                _userApiOperations.AssertUserDetails(user, userId, "janet.weaver@reqres.in", "Janet");
+
+                _userApiOperations.PrintUsers(new List<JObject> { user });
+
+                Reporter.LogToReport(Status.Pass, $"Test passed. User with ID: {userId} is successfully retrieved.");
+            }
+            catch (Exception ex)
+            {
+                Reporter.LogToReport(Status.Fail, $"Test failed.");
+                Assert.Fail($"Test failed. Exception message: {ex.Message}");
+            }
         }
 
         [Test]
@@ -114,11 +136,21 @@ namespace APIRestSharp.APITests
             string uniqueName = $"User_{DateTime.Now:yyyyMMdd_HHmmss}";
             string job = "Software Developer";
 
-            // Call CreateUser method
-            var responseJson = _userApiOperations.CreateUser(uniqueName, job);
+            try
+            {
+                // Call CreateUser method
+                var responseJson = _userApiOperations.CreateUser(uniqueName, job);
 
-            // Validate the response
-            _userApiOperations.ValidateCreatedUserResponse(responseJson, uniqueName, job);
+                // Validate the response
+                _userApiOperations.ValidateCreatedUserResponse(responseJson, uniqueName, job);
+
+                Reporter.LogToReport(Status.Pass, $"Test passed. User with unique name: {uniqueName} is successfully created.");
+            }
+            catch (Exception ex)
+            {
+                Reporter.LogToReport(Status.Fail, $"Test failed.");
+                Assert.Fail($"Test failed. Exception message: {ex.Message}");
+            }
         }
 
         [Test]
@@ -129,16 +161,27 @@ namespace APIRestSharp.APITests
             // Generate unique user data
             string uniqueName = $"User_{DateTime.Now:yyyyMMdd_HHmmss}";
             string job = "Software Developer";
-            var userResponseJson = _userApiOperations.CreateUser(uniqueName, job);
 
-            // Extract user ID from the response for deletion
-            int userId = (int)userResponseJson["id"];
+            try
+            {
+                var userResponseJson = _userApiOperations.CreateUser(uniqueName, job);
 
-            // Delete the newly created user
-            _userApiOperations.DeleteUser(userId);
+                // Extract user ID from the response for deletion
+                int userId = (int)userResponseJson["id"];
 
-            // Verify that the user no longer exists (404 Not Found)
-            _userApiOperations.ValidateDeletedUserResponse(userId);
+                // Delete the newly created user
+                _userApiOperations.DeleteUser(userId);
+
+                // Verify that the user no longer exists (404 Not Found)
+                _userApiOperations.ValidateDeletedUserResponse(userId);
+
+                Reporter.LogToReport(Status.Pass, $"Test passed. User with ID: {userId} is deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                Reporter.LogToReport(Status.Fail, $"Test failed.");
+                Assert.Fail($"Test failed. Exception message: {ex.Message}");
+            }
         }
 
         // Flush the report after all tests are completed

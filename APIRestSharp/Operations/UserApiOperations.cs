@@ -46,7 +46,7 @@ namespace APIRestSharp.Operations
             } while (currentPage <= totalPages); // Continue fetching users until we have data from all pages
 
             // Return the collected list of all users
-            Reporter.LogToReport(Status.Pass, $"Successfully retrieved all users:\n{allUsers}");
+            Reporter.LogToReport(Status.Info, $"Successfully retrieved all users:\n");
             return allUsers;
         }
 
@@ -74,7 +74,7 @@ namespace APIRestSharp.Operations
             }
 
             // Log success and return users
-            Reporter.LogToReport(Status.Pass, $"Successfully retrieved users from page {pageNumber}");
+            Reporter.LogToReport(Status.Info, $"Successfully retrieved users from page {pageNumber}");
             return users.Select(user => (JObject)user).ToList();
         }
 
@@ -103,7 +103,7 @@ namespace APIRestSharp.Operations
             }
 
             // Log success and return user details
-            Reporter.LogToReport(Status.Pass, "Successfully retrieved details for user ID");
+            Reporter.LogToReport(Status.Info, "Successfully retrieved details for user ID");
             return user as JObject;
         }
 
@@ -126,12 +126,12 @@ namespace APIRestSharp.Operations
             if (response.StatusCode != System.Net.HttpStatusCode.Created)
             {
                 var errorMessage = $"Failed to create user. HTTP Status: {response.StatusCode}, Response: {response.Content}";
-                Reporter.LogToReport(Status.Fail, errorMessage);
+                Reporter.LogToReport(Status.Info, errorMessage);
                 Console.WriteLine(errorMessage);
                 throw new Exception(errorMessage);
             }
 
-            Reporter.LogToReport(Status.Pass, $"User successfully created. HTTP 201 Created. Response: {response.Content}");
+            Reporter.LogToReport(Status.Info, $"User successfully created. HTTP 201 Created. Response: {response.Content}");
             return JObject.Parse(response.Content);
         }
 
@@ -141,7 +141,7 @@ namespace APIRestSharp.Operations
             if (responseJson["id"] == null || responseJson["createdAt"] == null)
             {
                 var errorMessage = "Response JSON does not contain required fields (id or createdAt).";
-                Reporter.LogToReport(Status.Fail, errorMessage);
+                Reporter.LogToReport(Status.Info, errorMessage);
                 throw new Exception(errorMessage);
             }
 
@@ -149,7 +149,7 @@ namespace APIRestSharp.Operations
             Assert.AreEqual(expectedJob, responseJson["job"]?.ToString(), "User job does not match.");
 
             Reporter.LogToReport(
-                Status.Pass,
+                Status.Info,
                 $"Validated created user: ID = {responseJson["id"]}, Name = {responseJson["name"]}, Job = {responseJson["job"]}, CreatedAt = {responseJson["createdAt"]}"
             );
         }
@@ -163,12 +163,12 @@ namespace APIRestSharp.Operations
             if (response.StatusCode != System.Net.HttpStatusCode.NoContent)
             {
                 var errorMessage = $"Failed to delete user with ID {userId}. HTTP Status: {response.StatusCode}, Response: {response.Content}";
-                Reporter.LogToReport(Status.Fail, errorMessage);
+                Reporter.LogToReport(Status.Info, errorMessage);
                 Console.WriteLine(errorMessage);
                 throw new Exception(errorMessage);
             }
 
-            Reporter.LogToReport(Status.Pass, $"User with ID {userId} successfully deleted. HTTP 204 No Content.");
+            Reporter.LogToReport(Status.Info, $"User with ID {userId} successfully deleted. HTTP 204 No Content.");
         }
 
         // Method to validate that a user does not exist after deletion
@@ -181,12 +181,12 @@ namespace APIRestSharp.Operations
             if (response.StatusCode != System.Net.HttpStatusCode.NotFound)
             {
                 var errorMessage = $"User with ID {userId} still exists. Expected 404 Not Found but got {response.StatusCode}.";
-                Reporter.LogToReport(Status.Fail, errorMessage);
+                Reporter.LogToReport(Status.Info, errorMessage);
                 Console.WriteLine(errorMessage);
                 throw new Exception(errorMessage);
             }
 
-            Reporter.LogToReport(Status.Pass, $"User with ID {userId} successfully deleted and no longer exists.");
+            Reporter.LogToReport(Status.Info, $"User with ID {userId} successfully deleted and no longer exists.");
         }
 
         // Helper method to assert the details of the extracted user
@@ -195,7 +195,7 @@ namespace APIRestSharp.Operations
             if (user == null)
             {
                 var errorMessage = "User data is null";
-                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
+                Reporter.LogToReport(Status.Info, errorMessage); // Log failure
                 throw new Exception(errorMessage);
             }
 
@@ -203,7 +203,7 @@ namespace APIRestSharp.Operations
             if ((int)user["id"] != expectedId)
             {
                 var errorMessage = $"Expected user ID {expectedId}, but got {(int)user["id"]}";
-                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
+                Reporter.LogToReport(Status.Info, errorMessage); // Log failure
                 throw new Exception(errorMessage);
             }
 
@@ -211,7 +211,7 @@ namespace APIRestSharp.Operations
             if ((string)user["email"] != expectedEmail)
             {
                 var errorMessage = $"Expected email {expectedEmail}, but got {(string)user["email"]}";
-                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
+                Reporter.LogToReport(Status.Info, errorMessage); // Log failure
                 throw new Exception(errorMessage);
             }
 
@@ -219,12 +219,12 @@ namespace APIRestSharp.Operations
             if ((string)user["first_name"] != expectedFirstName)
             {
                 var errorMessage = $"Expected first name {expectedFirstName}, but got {(string)user["first_name"]}";
-                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
+                Reporter.LogToReport(Status.Info, errorMessage); // Log failure
                 throw new Exception(errorMessage);
             }
 
             // Log success after all assertions pass
-            Reporter.LogToReport(Status.Pass, "User details are as expected.");
+            Reporter.LogToReport(Status.Info, "User details are as expected.");
         }
 
         // Method to sort the list of users by their first name
@@ -232,7 +232,7 @@ namespace APIRestSharp.Operations
         {
             // Order the users by first name and return the sorted list
             var sortedUsers = users.OrderBy(user => (string)user["first_name"]).ToList();
-            Reporter.LogToReport(Status.Pass, "Successfully sorted users by first name.");
+            Reporter.LogToReport(Status.Info, "Successfully sorted users by first name.");
             return sortedUsers;
         }
 
@@ -253,7 +253,7 @@ namespace APIRestSharp.Operations
             }
 
             // Log a message in the report indicating that the user details were successfully printed
-            Reporter.LogToReport(Status.Pass, "Successfully printed all user details (ID, Email, First Name, Last Name) to console and report.");
+            Reporter.LogToReport(Status.Info, "Successfully printed all user details (ID, Email, First Name, Last Name) to console and report.");
         }
 
     }
