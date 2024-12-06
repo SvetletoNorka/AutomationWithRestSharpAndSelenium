@@ -107,6 +107,53 @@ namespace APIRestSharp.Operations
             return user as JObject;
         }
 
+        // Sends a POST request to create a new user
+        public JObject CreateUser(string name, string job)
+        {
+            var request = RestClientHelper.CreateRequest("api/users", Method.Post);
+
+            var userPayload = new
+            {
+                name = name,
+                job = job
+            };
+
+            request.AddJsonBody(userPayload);
+
+            var response = _apiClient.ExecuteRequest(request);
+
+            // Check if the response status is HTTP 201 Created
+            if (response.StatusCode != System.Net.HttpStatusCode.Created)
+            {
+                var errorMessage = $"Failed to create user. HTTP Status: {response.StatusCode}, Response: {response.Content}";
+                Reporter.LogToReport(Status.Fail, errorMessage);
+                Console.WriteLine(errorMessage);
+                throw new Exception(errorMessage);
+            }
+
+            Reporter.LogToReport(Status.Pass, $"User successfully created. HTTP 201 Created. Response: {response.Content}");
+            return JObject.Parse(response.Content);
+        }
+
+        // Validates the details of a created user against expected values.
+        public void ValidateCreatedUserResponse(JObject responseJson, string expectedName, string expectedJob)
+        {
+            if (responseJson["id"] == null || responseJson["createdAt"] == null)
+            {
+                var errorMessage = "Response JSON does not contain required fields (id or createdAt).";
+                Reporter.LogToReport(Status.Fail, errorMessage);
+                throw new Exception(errorMessage);
+            }
+
+            Assert.AreEqual(expectedName, responseJson["name"]?.ToString(), "User name does not match.");
+            Assert.AreEqual(expectedJob, responseJson["job"]?.ToString(), "User job does not match.");
+
+            Reporter.LogToReport(
+                Status.Pass,
+                $"Validated created user: ID = {responseJson["id"]}, Name = {responseJson["name"]}, Job = {responseJson["job"]}, CreatedAt = {responseJson["createdAt"]}"
+            );
+        }
+
         // Helper method to assert the details of the extracted user
         public void AssertUserDetails(JObject user, int expectedId, string expectedEmail, string expectedFirstName)
         {

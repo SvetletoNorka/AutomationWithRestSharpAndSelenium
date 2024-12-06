@@ -105,6 +105,22 @@ namespace APIRestSharp.APITests
             }
         }
 
+        [Test]
+        public void Test_CreateUniqueUser()
+        {
+            Reporter.CreateTest("Test_CreateUniqueUser");
+
+            // Generate unique user data
+            string uniqueName = $"User_{DateTime.Now:yyyyMMdd_HHmmss}";
+            string job = "Software Developer";
+
+            // Call CreateUser method
+            var responseJson = _userApiOperations.CreateUser(uniqueName, job);
+
+            // Validate the response
+            _userApiOperations.ValidateCreatedUserResponse(responseJson, uniqueName, job);
+        }
+
         // Flush the report after all tests are completed
         [TearDown]
         public void TearDown()
