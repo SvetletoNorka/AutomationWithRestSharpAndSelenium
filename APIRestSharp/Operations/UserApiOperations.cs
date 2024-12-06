@@ -87,7 +87,7 @@ namespace APIRestSharp.Operations
             if (!response.IsSuccessful)
             {
                 var errorMessage = $"API call failed for user ID {userId}";
-                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
+                Reporter.LogToReport(Status.Info, errorMessage); // Log failure
                 Console.WriteLine(errorMessage);  // Log to console
                 throw new Exception(errorMessage);
             }
@@ -98,7 +98,7 @@ namespace APIRestSharp.Operations
             if (user == null)
             {
                 var errorMessage = $"User with ID {userId} not found";
-                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
+                Reporter.LogToReport(Status.Info, errorMessage); // Log failure
                 throw new Exception(errorMessage);
             }
 

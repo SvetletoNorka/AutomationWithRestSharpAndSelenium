@@ -82,7 +82,7 @@ namespace APIRestSharp.APITests
             // Create a test in the Extent report
             Reporter.CreateTest("Test_GetUserDetails_InvalidUserId");
 
-            int userId = 999;  // Invalid user Id
+            int userId = 23;  // Invalid user Id
             string expectedErrorMessage = $"API call failed for user ID {userId}";
 
             // Use Assert.Throws to verify that the exception is thrown
