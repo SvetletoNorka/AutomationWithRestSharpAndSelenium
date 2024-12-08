@@ -1,0 +1,59 @@
+name: Build and Test Projects
+
+on:
+  workflow_dispatch: # Allows manual triggering of the workflow
+  # Uncomment the following lines to schedule the workflow
+  # schedule:
+  #   - cron: '0 0 * * *' # Runs every day at 00:00 UTC
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        ref: master # Adjust if your default branch is named differently
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.x' # Adjust version based on your projects' requirements
+
+    - name: Restore dependencies for APIRestSharp
+      run: dotnet restore ./APIRestSharp/APIRestSharp.csproj
+
+    - name: Restore dependencies for OnlineShoping
+      run: dotnet restore ./OnlineShoping/OnlineShoping.csproj
+
+    - name: Build APIRestSharp project
+      run: dotnet build ./APIRestSharp/APIRestSharp.csproj --no-restore --configuration Debug
+
+    - name: Build OnlineShoping project
+      run: dotnet build ./OnlineShoping/OnlineShoping.csproj --no-restore --configuration Debug
+
+    - name: Run APIRestSharp tests
+      run: dotnet test ./APIRestSharp/APIRestSharp.csproj --no-build --verbosity normal
+      env:
+        DOTNET_ENVIRONMENT: "Development"
+
+    - name: Run OnlineShoping tests
+      run: dotnet test ./OnlineShoping/OnlineShoping.csproj --no-build --verbosity normal
+      env:
+        DOTNET_ENVIRONMENT: "Development"
+
+    - name: Upload Test Results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: TestResults
+        path: |
+          ./APIRestSharp/TestResults/
+          ./OnlineShoping/TestResults/
+      # Collects and uploads test results for both projects.
+
+    - name: Post-test cleanup
+      if: always()
+      run: rm -rf ./OnlineShoping/bin/Debug/ ./APIRestSharp/bin/Debug/
+      # Optional: Cleans up build files after tests are run.
