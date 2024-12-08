@@ -12,9 +12,9 @@ namespace OnlineShoping.StepDefinitions
     {
         private readonly IWebDriver _driver;
         private readonly WebDriverExtensions _webDriverExtensions;
-        private string firstItemName;
-        private string lastItemName;
-        private string previousOflastItemName;
+        private static string firstItemName = "";
+        private static string lastItemName = "";
+        private static string previousOflastItemName = "";
 
         // Locators for cart 
         private readonly By productList = By.CssSelector(".inventory_item");
