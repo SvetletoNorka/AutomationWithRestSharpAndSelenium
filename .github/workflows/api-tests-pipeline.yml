@@ -29,14 +29,6 @@ jobs:
 
     - name: Run APIRestSharp tests
       run: dotnet test ./APIRestSharp/APIRestSharp.csproj --no-build --verbosity normal
-
-    - name: Upload Test Results
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: TestResults
-        path: |
-          ./APIRestSharp/TestResults/
   
     - name: Post-test cleanup
       if: always()
