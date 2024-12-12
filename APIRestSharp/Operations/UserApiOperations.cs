@@ -2,7 +2,9 @@
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using AventStack.ExtentReports;
-using APIRestSharp.Reporting; 
+using APIRestSharp.Reporting;
+using APIRestSharp.Models;
+using System.Collections.Generic;
 
 namespace APIRestSharp.Operations
 {
@@ -17,9 +19,9 @@ namespace APIRestSharp.Operations
         }
 
         // Method to get all users from multiple pages
-        public List<JObject> GetAllUsers()
+        public List<User> GetAllUsers()
         {
-            var allUsers = new List<JObject>();
+            var allUsers = new List<User>();
             int currentPage = 1;
             int totalPages = 0;
 
@@ -51,7 +53,7 @@ namespace APIRestSharp.Operations
         }
 
         // Helper method to fetch users from a specific page
-        private List<JObject> GetUsersFromPage(int pageNumber)
+        private List<User> GetUsersFromPage(int pageNumber)
         {
             var request = RestClientHelper.CreateRequest($"api/users?page={pageNumber}", Method.Get);
             var response = _apiClient.ExecuteRequest(request);
@@ -75,11 +77,13 @@ namespace APIRestSharp.Operations
 
             // Log success and return users
             Reporter.LogToReport(Status.Info, $"Successfully retrieved users from page {pageNumber}");
-            return users.Select(user => (JObject)user).ToList();
+
+            // Convert each JObject to a User object and return as a list
+            return users.Select(user => user.ToObject<User>()).ToList();
         }
 
         // Method to get details of a specific user by their ID
-        public JObject GetUserDetails(int userId)
+        public User GetUserDetails(int userId)
         {
             var request = RestClientHelper.CreateRequest($"api/users/{userId}", Method.Get);
             var response = _apiClient.ExecuteRequest(request);
@@ -104,11 +108,11 @@ namespace APIRestSharp.Operations
 
             // Log success and return user details
             Reporter.LogToReport(Status.Info, "Successfully retrieved details for user ID");
-            return user as JObject;
+            return user.ToObject<User>();
         }
 
         // Sends a POST request to create a new user
-        public JObject CreateUser(string name, string job)
+        public UserCreationResponse CreateUser(string name, string job)
         {
             var request = RestClientHelper.CreateRequest("api/users", Method.Post);
 
@@ -120,6 +124,7 @@ namespace APIRestSharp.Operations
 
             request.AddJsonBody(userPayload);
 
+            // Execute the request
             var response = _apiClient.ExecuteRequest(request);
 
             // Check if the response status is HTTP 201 Created
@@ -132,25 +137,32 @@ namespace APIRestSharp.Operations
             }
 
             Reporter.LogToReport(Status.Info, $"User successfully created. HTTP 201 Created. Response: {response.Content}");
-            return JObject.Parse(response.Content);
+
+            // Deserialize the response content into UserCreationResponse object
+            var userCreationResponse = JObject.Parse(response.Content).ToObject<UserCreationResponse>();
+
+            return userCreationResponse; // Return the created user as a UserCreationResponse object
         }
 
         // Validates the details of a created user against expected values.
-        public void ValidateCreatedUserResponse(JObject responseJson, string expectedName, string expectedJob)
+        public void ValidateCreatedUserResponse(UserCreationResponse response, string expectedName, string expectedJob)
         {
-            if (responseJson["id"] == null || responseJson["createdAt"] == null)
+            // Check if the required fields are null
+            if (response.Id == null || response.CreatedAt == null)
             {
                 var errorMessage = "Response JSON does not contain required fields (id or createdAt).";
                 Reporter.LogToReport(Status.Info, errorMessage);
                 throw new Exception(errorMessage);
             }
 
-            Assert.AreEqual(expectedName, responseJson["name"]?.ToString(), "User name does not match.");
-            Assert.AreEqual(expectedJob, responseJson["job"]?.ToString(), "User job does not match.");
+            // Validate that the actual name and job match the expected values
+            Assert.AreEqual(expectedName, response.Name, "User name does not match.");
+            Assert.AreEqual(expectedJob, response.Job, "User job does not match.");
 
+            // Log the validated user details
             Reporter.LogToReport(
                 Status.Info,
-                $"Validated created user: ID = {responseJson["id"]}, Name = {responseJson["name"]}, Job = {responseJson["job"]}, CreatedAt = {responseJson["createdAt"]}"
+                $"Validated created user: ID = {response.Id}, Name = {response.Name}, Job = {response.Job}, CreatedAt = {response.CreatedAt}"
             );
         }
 
@@ -190,36 +202,37 @@ namespace APIRestSharp.Operations
         }
 
         // Helper method to assert the details of the extracted user
-        public void AssertUserDetails(JObject user, int expectedId, string expectedEmail, string expectedFirstName)
+        public void AssertUserDetails(User user, int expectedId, string expectedEmail, string expectedFirstName)
         {
+            // Check if the user object is null
             if (user == null)
             {
                 var errorMessage = "User data is null";
-                Reporter.LogToReport(Status.Info, errorMessage); // Log failure
+                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
                 throw new Exception(errorMessage);
             }
 
             // Assert that the user ID matches the expected ID
-            if ((int)user["id"] != expectedId)
+            if (user.Id != expectedId)
             {
-                var errorMessage = $"Expected user ID {expectedId}, but got {(int)user["id"]}";
-                Reporter.LogToReport(Status.Info, errorMessage); // Log failure
+                var errorMessage = $"Expected user ID {expectedId}, but got {user.Id}";
+                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
                 throw new Exception(errorMessage);
             }
 
             // Assert that the user's email matches the expected email
-            if ((string)user["email"] != expectedEmail)
+            if (user.Email != expectedEmail)
             {
-                var errorMessage = $"Expected email {expectedEmail}, but got {(string)user["email"]}";
-                Reporter.LogToReport(Status.Info, errorMessage); // Log failure
+                var errorMessage = $"Expected email {expectedEmail}, but got {user.Email}";
+                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
                 throw new Exception(errorMessage);
             }
 
             // Assert that the user's first name matches the expected first name
-            if ((string)user["first_name"] != expectedFirstName)
+            if (user.FirstName != expectedFirstName)
             {
-                var errorMessage = $"Expected first name {expectedFirstName}, but got {(string)user["first_name"]}";
-                Reporter.LogToReport(Status.Info, errorMessage); // Log failure
+                var errorMessage = $"Expected first name {expectedFirstName}, but got {user.FirstName}";
+                Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
                 throw new Exception(errorMessage);
             }
 
@@ -228,22 +241,22 @@ namespace APIRestSharp.Operations
         }
 
         // Method to sort the list of users by their first name
-        public List<JObject> SortUsersByFirstName(List<JObject> users)
+        public List<User> SortUsersByFirstName(List<User> users)
         {
             // Order the users by first name and return the sorted list
-            var sortedUsers = users.OrderBy(user => (string)user["first_name"]).ToList();
+            var sortedUsers = users.OrderBy(user => user.FirstName).ToList();
             Reporter.LogToReport(Status.Info, "Successfully sorted users by first name.");
             return sortedUsers;
         }
 
         // Method to print the details of each user
-        public void PrintUsers(List<JObject> users)
+        public void PrintUsers(List<User> users)
         {
             // Iterate through each user and print their details
             foreach (var user in users)
             {
                 // Include Last Name in the user details
-                string userDetails = $"ID: {user["id"]}, Email: {user["email"]}, First Name: {user["first_name"]}, Last Name: {user["last_name"]}";
+                string userDetails = $"ID: {user.Id}, Email: {user.Email}, First Name: {user.FirstName}, Last Name: {user.LastName}";
 
                 // Print to the console
                 Console.WriteLine(userDetails);
