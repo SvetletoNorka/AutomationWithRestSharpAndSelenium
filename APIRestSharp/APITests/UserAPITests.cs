@@ -31,7 +31,6 @@ using APIRestSharp.Models;
 using APIRestSharp.Operations;
 using APIRestSharp.Reporting;
 using AventStack.ExtentReports;
-using Newtonsoft.Json.Linq;
 
 namespace APIRestSharp.APITests
 {
