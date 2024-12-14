@@ -27,10 +27,10 @@ Execute one or many Assertions
  ********************/
 
 using APIRestSharp.APIClient;
+using APIRestSharp.Models;
 using APIRestSharp.Operations;
 using APIRestSharp.Reporting;
 using AventStack.ExtentReports;
-using Newtonsoft.Json.Linq;
 
 namespace APIRestSharp.APITests
 {
@@ -87,7 +87,7 @@ namespace APIRestSharp.APITests
 
                 _userApiOperations.AssertUserDetails(user, userId, "janet.weaver@reqres.in", "Janet");
 
-                _userApiOperations.PrintUsers(new List<JObject> { user });
+                _userApiOperations.PrintUsers(new List<User> { user });
 
                 Reporter.LogToReport(Status.Pass, $"Test passed. User with ID: {userId} is successfully retrieved.");
             }
@@ -143,10 +143,10 @@ namespace APIRestSharp.APITests
             try
             {
                 // Call CreateUser method
-                var responseJson = _userApiOperations.CreateUser(uniqueName, job);
+                var user = _userApiOperations.CreateUser(uniqueName, job);
 
                 // Validate the response
-                _userApiOperations.ValidateCreatedUserResponse(responseJson, uniqueName, job);
+                _userApiOperations.ValidateCreatedUserResponse(user, uniqueName, job);
 
                 Reporter.LogToReport(Status.Pass, $"Test passed. User with unique name: {uniqueName} is successfully created.");
             }
@@ -171,7 +171,7 @@ namespace APIRestSharp.APITests
                 var userResponseJson = _userApiOperations.CreateUser(uniqueName, job);
 
                 // Extract user ID from the response for deletion
-                int userId = (int)userResponseJson["id"];
+                int userId = int.Parse(userResponseJson.Id);
 
                 // Delete the newly created user
                 _userApiOperations.DeleteUser(userId);
