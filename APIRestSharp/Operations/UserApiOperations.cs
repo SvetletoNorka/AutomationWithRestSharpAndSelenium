@@ -229,9 +229,9 @@ namespace APIRestSharp.Operations
             }
 
             // Assert that the user's first name matches the expected first name
-            if (user.FirstName != expectedFirstName)
+            if (user.First_Name != expectedFirstName)
             {
-                var errorMessage = $"Expected first name {expectedFirstName}, but got {user.FirstName}";
+                var errorMessage = $"Expected first name {expectedFirstName}, but got {user.First_Name}";
                 Reporter.LogToReport(Status.Fail, errorMessage); // Log failure
                 throw new Exception(errorMessage);
             }
@@ -244,7 +244,7 @@ namespace APIRestSharp.Operations
         public List<User> SortUsersByFirstName(List<User> users)
         {
             // Order the users by first name and return the sorted list
-            var sortedUsers = users.OrderBy(user => user.FirstName).ToList();
+            var sortedUsers = users.OrderBy(user => user.First_Name).ToList();
             Reporter.LogToReport(Status.Info, "Successfully sorted users by first name.");
             return sortedUsers;
         }
@@ -256,7 +256,7 @@ namespace APIRestSharp.Operations
             foreach (var user in users)
             {
                 // Include Last Name in the user details
-                string userDetails = $"ID: {user.Id}, Email: {user.Email}, First Name: {user.FirstName}, Last Name: {user.LastName}";
+                string userDetails = $"ID: {user.Id}, Email: {user.Email}, First Name: {user.First_Name}, Last Name: {user.Last_Name}";
 
                 // Print to the console
                 Console.WriteLine(userDetails);
